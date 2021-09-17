@@ -68,8 +68,9 @@ class User(AbstractUser):
 
 class Book(models.Model):
     BOOK_TYPE = (
-        ('Audio', 'E-BOOK'),
-        ('Traditional', 'Paper BOOK')
+        ('Audio', 'Audio'),
+        ('Electronic', 'Electronic'),
+        ('Paper', 'Paper')
     )
 
     image = models.ImageField(upload_to="images/books/", blank=True)
@@ -82,6 +83,25 @@ class Book(models.Model):
 
     def __str__(self):
         return self.title + " | " + str(self.price)
+
+
+class BookRating(models.Model):
+    customer = models.ForeignKey(User, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    rates = models.PositiveSmallIntegerField(choices=[(i, i) for i in range(1, 5)], default=1)
+
+    def __str__(self):
+        return str(self.rates) + " rating by" + str(self.customer.phone) + " on " + self.book.title + " book "
+
+
+class BookReview(models.Model):
+    customer = models.ForeignKey(User, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    text = models.TextField()
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return "Comment: " + self.text[:20] + " by " + str(self.customer.phone)
 
 
 class CartItem(models.Model):
@@ -108,7 +128,7 @@ class Cart(models.Model):
     customer = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return " | number of books:> " + str(self.customer.phone)
+        return " Number of books:> " + str(self.cartItems.all().count()) + " by " + str(self.customer.phone)
 
     @property
     def total_price(self):

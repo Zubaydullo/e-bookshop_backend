@@ -1,27 +1,45 @@
 from rest_framework import serializers
-from .models import Book, User, Cart, CartItem, Order, Delivery
+from .models import Book, User, Cart, CartItem, Order, Delivery, BookReview, BookRating
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['phone_number', 'password']
-        extra_kwargs = {'password': {'write_only': True}}
 
-    def create(self, validated_data):
-        user = User(
-            phone=validated_data['phone'],
-            password=validated_data['password']
-        )
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
+
+class BookRatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookRating
+        fields = "__all__"
+        depth = 0
+
+
+class BookReviewSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = BookReview
+        fields = "__all__"
+        depth = 0
 
 
 class BookSerializer(serializers.ModelSerializer):
+    book_rates = serializers.SerializerMethodField()
+    book_reviews = serializers.SerializerMethodField()
+
     class Meta:
         model = Book
-        fields = "__all__"
+        fields = ('image', 'title', 'price', 'book_type', 'description', 'author', 'pub_date', 'book_rates', 'book_reviews')
+        depth = 3
+
+    def get_book_rates(self, obj):
+        rates = BookRating.objects.filter(book=obj).distinct()
+        return BookRatingSerializer(rates, many=True).data
+
+
+    def get_book_reviews(self, obj):
+        reviews = BookReview.objects.filter(book=obj)
+        return BookReviewSerializer(reviews, many=True).data
 
 
 class CartSerializer(serializers.ModelSerializer):
@@ -51,7 +69,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = "__all__"
-        depth=1
+        depth=3
 
 
 class DeliverySerializer(serializers.ModelSerializer):
