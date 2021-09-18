@@ -5,7 +5,7 @@ from .models import Book, User, Cart, CartItem, Order, Delivery, BookReview, Boo
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['phone_number', 'password']
+        fields = "__all__"
 
 
 class BookRatingSerializer(serializers.ModelSerializer):
@@ -26,11 +26,13 @@ class BookReviewSerializer(serializers.ModelSerializer):
 class BookSerializer(serializers.ModelSerializer):
     book_rates = serializers.SerializerMethodField()
     book_reviews = serializers.SerializerMethodField()
+    book_type = serializers.SerializerMethodField()
 
     class Meta:
         model = Book
-        fields = ('image', 'title', 'price', 'book_type', 'description', 'author', 'pub_date', 'book_rates', 'book_reviews')
+        fields = ('image', 'title','book_type', 'price', 'description', 'author', 'pub_date', 'book_rates', 'book_reviews')
         depth = 3
+
 
     def get_book_rates(self, obj):
         rates = BookRating.objects.filter(book=obj).distinct()
@@ -40,6 +42,17 @@ class BookSerializer(serializers.ModelSerializer):
     def get_book_reviews(self, obj):
         reviews = BookReview.objects.filter(book=obj)
         return BookReviewSerializer(reviews, many=True).data
+
+
+    def get_book_type(self, obj):
+        types_dict = {}
+        if obj.audio:
+            types_dict['audio'] = obj.audio
+        if obj.electronic:
+            types_dict['electronic'] = obj.electronic
+        if obj.paper:
+            types_dict['paper'] = obj.paper
+        return types_dict
 
 
 class CartSerializer(serializers.ModelSerializer):
@@ -69,11 +82,11 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = "__all__"
-        depth=3
+        depth = 3
 
 
 class DeliverySerializer(serializers.ModelSerializer):
     class Meta:
         model = Delivery
         fields = "__all__"
-        depth=4
+        depth = 4

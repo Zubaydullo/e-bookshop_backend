@@ -67,22 +67,24 @@ class User(AbstractUser):
 
 
 class Book(models.Model):
-    BOOK_TYPE = (
-        ('Audio', 'Audio'),
-        ('Electronic', 'Electronic'),
-        ('Paper', 'Paper')
-    )
-
     image = models.ImageField(upload_to="images/books/", blank=True)
     title = models.CharField(max_length=100, null=True)
     price = models.PositiveIntegerField()
-    book_type = models.CharField(max_length=100, choices=BOOK_TYPE)
+    file = models.FileField(upload_to="files/", blank=True)
+
+    audio = models.BooleanField(default=False)
+    electronic = models.BooleanField(default=False)
+    paper = models.BooleanField(default=False)
+
+    size = models.PositiveBigIntegerField(default=0, null=True)
+    duration = models.PositiveIntegerField(default=0, null=True)
     description = models.TextField()
     author = models.CharField(max_length=100, null=True)
     pub_date = models.DateField()
 
     def __str__(self):
         return self.title + " | " + str(self.price)
+
 
 
 class BookRating(models.Model):

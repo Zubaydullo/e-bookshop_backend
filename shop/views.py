@@ -24,7 +24,7 @@ class BooksViewSet(ViewSet):
         self.Serializer = BookSerializer
         self.Filter = BookFilter
         self.FILTER_FIELDS = [
-            'title', 'price', 'book_type', 'author'
+            'title', 'price', 'author'
         ]
 
 
