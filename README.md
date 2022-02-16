@@ -1,2 +1,2 @@
-# e-bookshop_backend
+# e-bookshop-backend
 API for Online Book Store
